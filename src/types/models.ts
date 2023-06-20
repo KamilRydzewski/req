@@ -14,3 +14,8 @@ export interface BackendTableResponse<T> {
   total_pages: number,
   data: T;
 }
+
+export enum Page {
+  USER_LIST = 'userList',
+  USER = 'user'
+}
