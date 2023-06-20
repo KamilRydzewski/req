@@ -14,6 +14,10 @@ export interface BackendTableResponse<T> {
   total_pages: number,
   data: T;
 }
+export interface BackendTableParams {
+  page: number,
+  per_page: number,
+}
 
 export enum Page {
   USER_LIST = 'userList',

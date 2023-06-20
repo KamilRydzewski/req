@@ -8,6 +8,7 @@
       :columns="columns"
       row-key="name"
       hide-pagination
+      :pagination="initialPagination"
     >
       <template #top>
         <div class="row justify-between full-width">
@@ -55,27 +56,83 @@
       </template>
     </custom-table>
     <div class="row q-mt-md">
-      <q-pagination v-model="page" boundary-links color="primary" :max="20" />
+      <q-pagination
+        v-model="page"
+        boundary-links
+        color="primary"
+        :max="totalPages"
+      />
     </div>
   </q-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import {
+  defineComponent,
+  watch,
+  onMounted,
+  reactive,
+  ref,
+  computed,
+} from 'vue';
 import { useUsers } from 'src/composables/useUsers';
 import CustomInput from 'src/components/atoms/CustomInput.vue';
 import CustomTable from 'src/components/organisms/CustomTable.vue';
 import CustomBtn from 'src/components/atoms/CustomButton.vue';
+import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'IndexPage',
   components: { CustomInput, CustomTable, CustomBtn },
   setup() {
+    const router = useRouter();
+    const route = useRoute();
     const { getAllUsers, users } = useUsers();
-    const page = ref(1);
-    onMounted(async () => {
-      await getAllUsers();
+    const routeParams = computed(() => route.query);
+    const page = ref(Number(routeParams.value?.page) ?? 1);
+    const totalPages = ref(5);
+    const initialPagination = reactive({
+      sortBy: 'desc',
+      descending: false,
+      page: 1,
+      rowsPerPage: 8,
+      // rowsNumber: 0,
     });
+
+    onMounted(() => {
+      fetchAllData();
+    });
+
+    const fetchAllData = async () => {
+      const paginationData = await getAllUsers({
+        page: page.value,
+        per_page: initialPagination.rowsPerPage,
+      });
+      page.value = paginationData.page;
+      totalPages.value = paginationData.total_pages;
+
+      setRouteParams();
+    };
+
+    const setRouteParams = () => {
+      void router.push({
+        query: { page: page.value },
+      });
+    };
+
+    watch(
+      () => routeParams.value,
+      () => {
+        page.value = Number(routeParams.value?.page);
+      }
+    );
+
+    watch(
+      () => page.value,
+      () => {
+        fetchAllData();
+      }
+    );
 
     const columns = [
       {
@@ -99,6 +156,8 @@ export default defineComponent({
     ];
 
     return {
+      totalPages,
+      initialPagination,
       users,
       page,
       columns,

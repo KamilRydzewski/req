@@ -1,9 +1,9 @@
 import AxiosClient from 'src/app/AxiosClient';
-import { BackendTableResponse, User } from 'src/types';
+import { BackendTableParams, BackendTableResponse, User } from 'src/types';
 
 export default class UserApi {
-  public static async getAllUsers() {
-    return await AxiosClient.get<BackendTableResponse<User[]>>('users');
+  public static async getAllUsers(params?: BackendTableParams) {
+    return await AxiosClient.get<BackendTableResponse<User[]>>('users', {params});
   }
 
   public static async getUser(id: string | number) {

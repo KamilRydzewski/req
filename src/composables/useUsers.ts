@@ -1,5 +1,5 @@
 import UserApi from 'src/app/User';
-import { User } from 'src/types';
+import { User, BackendTableResponse, BackendTableParams } from 'src/types';
 import { computed, ComputedRef, ref } from 'vue';
 
 const users = ref<User[]>([]);
@@ -8,7 +8,7 @@ export interface UseUsers {
   createNewUser: (data: User) => Promise<void>;
   deleteUser: (id: number) => Promise<{message: string}>;
   getUser: (id: number) => Promise<User>;
-  getAllUsers: () => Promise<User[]>;
+  getAllUsers: (params?: BackendTableParams) => Promise<BackendTableResponse<User[]>>;
   updateUser: (id: number, data: User) => Promise<string>;
 }
 
@@ -49,11 +49,11 @@ export const useUsers = (): UseUsers => {
     }
   };
 
-  const getAllUsers = async () => {
+  const getAllUsers = async (params?: BackendTableParams) => {
     try {
-      const resp = await UserApi.getAllUsers();
+      const resp = await UserApi.getAllUsers(params);
       users.value = resp.data;
-      return resp.data; 
+      return resp; 
     } catch (error) {
       console.log(error);
       return Promise.reject();
