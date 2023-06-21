@@ -1,19 +1,23 @@
 <template>
-  <q-page class="row justify-between" style="min-height: 400px">
-    <user-form
-      class="col-6"
-      @on-submit="handleSubmit"
-      :data="user"
-      :edit-mode="userRouteParam != undefined"
-      :is-loading="isLoading"
-    />
-    <user-card
-      class="col-5"
-      @on-image-change="handleChangedImage"
-      :edit-mode="userRouteParam != undefined"
-      :img-src="user.avatar"
-      :is-loading="isLoading"
-    />
+  <q-page class="row justify-between q-col-gutter-lg" style="min-height: 400px">
+    <div class="col-md-6 col-xs-12">
+      <user-form
+        class="full-height"
+        @on-submit="handleSubmit"
+        :data="user"
+        :edit-mode="userRouteParam != undefined"
+        :is-loading="isLoading"
+      />
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <user-card
+        class="full-height"
+        @on-image-change="handleChangedImage"
+        :edit-mode="userRouteParam != undefined"
+        :img-src="user.avatar"
+        :is-loading="isLoading"
+      />
+    </div>
   </q-page>
 </template>
 

@@ -5,10 +5,10 @@
         class="column justify-between full-height"
         @submit.prevent="onSubmit"
       >
-        <div class="row q-col-gutter-xl">
+        <div class="row q-col-gutter-x-xl q-col-gutter-y-sm">
           <custom-input
             v-model="userData.firstName"
-            class="col-6"
+            class="col-md-6 col-xs-12"
             label="First Name"
             dense
             filled
@@ -20,7 +20,7 @@
           />
           <custom-input
             v-model="userData.lastName"
-            class="col-6"
+            class="col-md-6 col-xs-12"
             label="Last Name"
             dense
             filled
