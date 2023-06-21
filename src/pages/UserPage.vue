@@ -7,6 +7,7 @@
         :data="user"
         :edit-mode="userRouteParam != undefined"
         :is-loading="isLoading"
+        @on-change="handleUserDataChange"
       />
     </div>
     <div class="col-md-6 col-xs-12">
@@ -46,13 +47,16 @@ export default defineComponent({
       user.avatar = imgUrl;
     };
 
-    const handleSubmit = async (data: {
+    const handleUserDataChange = (data: {
       firstName: string;
       lastName: string;
     }) => {
       const { firstName, lastName } = data;
       user.first_name = firstName;
       user.last_name = lastName;
+    };
+
+    const handleSubmit = async () => {
       try {
         isLoading.value = true;
         if (userRouteParam.value) {
@@ -91,6 +95,7 @@ export default defineComponent({
       userRouteParam,
       handleSubmit,
       handleChangedImage,
+      handleUserDataChange,
       users,
       user,
     };

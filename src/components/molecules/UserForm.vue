@@ -2,6 +2,7 @@
   <custom-card>
     <q-card-section class="full-height">
       <q-form
+        id="userForm"
         class="column justify-between full-height"
         @submit.prevent="onSubmit"
       >
@@ -33,6 +34,7 @@
         </div>
         <div class="row">
           <custom-btn
+            form="userForm"
             type="submit"
             color="primary"
             :label="editMode ? 'Update details' : 'Add user'"
@@ -82,11 +84,19 @@ export default defineComponent({
     });
 
     watch(
-      () => ({ ...props.data }),
+      () => [{ ...props.data }],
       () => {
-        userData.firstName = props.data.first_name;
-        userData.lastName = props.data.last_name;
+        userData.firstName = props.data?.first_name ?? '';
+        userData.lastName = props.data?.last_name ?? '';
       }
+    );
+
+    watch(
+      () => userData,
+      () => {
+        emit('on-change', userData);
+      },
+      { deep: true }
     );
 
     const onSubmit = () => {
