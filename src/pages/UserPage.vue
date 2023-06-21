@@ -5,12 +5,14 @@
       @on-submit="handleSubmit"
       :data="user"
       :edit-mode="userRouteParam != undefined"
+      :is-loading="isLoading"
     />
     <user-card
       class="col-5"
       @on-image-change="handleChangedImage"
       :edit-mode="userRouteParam != undefined"
       :img-src="user.avatar"
+      :is-loading="isLoading"
     />
   </q-page>
 </template>
@@ -18,7 +20,7 @@
 <script lang="ts">
 import UserForm from 'src/components/molecules/UserForm.vue';
 import UserCard from 'src/components/molecules/UserCard.vue';
-import { computed, defineComponent, onMounted, reactive } from 'vue';
+import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 import { useUsers } from 'src/composables/useUsers';
 import { User } from 'src/types';
 import { useRoute } from 'vue-router';
@@ -31,6 +33,7 @@ export default defineComponent({
     const { users, createNewUser, getUser, updateUser } = useUsers();
     const user = reactive<User>({} as User);
     const route = useRoute();
+    const isLoading = ref(false);
     const userRouteParam = computed(() =>
       !isNaN(Number(route.params?.id)) ? Number(route.params?.id) : undefined
     );
@@ -47,6 +50,7 @@ export default defineComponent({
       user.first_name = firstName;
       user.last_name = lastName;
       try {
+        isLoading.value = true;
         if (userRouteParam.value) {
           updateUser(userRouteParam.value, user);
         } else {
@@ -55,23 +59,31 @@ export default defineComponent({
       } catch (e) {
         console.error(e);
       } finally {
+        isLoading.value = false;
       }
     };
 
-    onMounted(async () => {
-      if (userRouteParam.value) {
-        try {
-          const resp = await getUser(userRouteParam.value);
-          user.first_name = resp.first_name;
-          user.last_name = resp.last_name;
-          user.avatar = resp.avatar;
-        } catch (e) {
-          console.error(e);
-        }
+    const handleGetUserData = async () => {
+      if (!userRouteParam.value) return;
+      try {
+        isLoading.value = true;
+        const resp = await getUser(userRouteParam.value);
+        user.first_name = resp.first_name;
+        user.last_name = resp.last_name;
+        user.avatar = resp.avatar;
+      } catch (e) {
+        console.error(e);
+      } finally {
+        isLoading.value = false;
       }
+    };
+
+    onMounted(() => {
+      handleGetUserData();
     });
 
     return {
+      isLoading,
       userRouteParam,
       handleSubmit,
       handleChangedImage,

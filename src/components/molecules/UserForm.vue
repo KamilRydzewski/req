@@ -3,7 +3,7 @@
     <q-card-section class="full-height">
       <q-form
         class="column justify-between full-height"
-        @submit="$emit('on-submit', userData)"
+        @submit.prevent="onSubmit"
       >
         <div class="row q-col-gutter-xl">
           <custom-input
@@ -12,6 +12,11 @@
             label="First Name"
             dense
             filled
+            :disable="isLoading"
+            lazy-rules
+            :rules="[
+              (val: string) => (val && val.length > 0) || 'Please type something',
+            ]"
           />
           <custom-input
             v-model="userData.lastName"
@@ -19,6 +24,11 @@
             label="Last Name"
             dense
             filled
+            :disable="isLoading"
+            lazy-rules
+            :rules="[
+              (val: string) => (val && val.length > 0) || 'Please type something',
+            ]"
           />
         </div>
         <div class="row">
@@ -28,6 +38,8 @@
             :label="editMode ? 'Update details' : 'Add user'"
             rounded
             filled
+            :disable="isLoading"
+            :loading="isLoading"
           />
         </div>
       </q-form>
@@ -50,6 +62,10 @@ export default defineComponent({
     CustomInput,
   },
   props: {
+    isLoading: {
+      type: Boolean,
+      default: false,
+    },
     editMode: {
       type: Boolean,
       default: false,
@@ -59,7 +75,7 @@ export default defineComponent({
       default: null,
     },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const userData = reactive({
       firstName: props.data?.first_name ?? '',
       lastName: props.data?.last_name ?? '',
@@ -73,7 +89,11 @@ export default defineComponent({
       }
     );
 
-    return { userData };
+    const onSubmit = () => {
+      emit('on-submit', userData);
+    };
+
+    return { userData, onSubmit };
   },
 });
 </script>

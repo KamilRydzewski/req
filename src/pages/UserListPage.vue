@@ -9,31 +9,37 @@
       row-key="name"
       hide-pagination
       :pagination="initialPagination"
+      :filter="tableFilter"
     >
       <template #top>
-        <div class="row justify-between full-width">
+        <div class="row justify-between full-width q-col-gutter-y-lg">
           <custom-input
+            debounce="300"
             class="col-xs-12 col-sm-5 col-md-4"
             dense
             filled
             icon-right="magnifier"
+            v-model="tableFilter"
           >
             <template v-slot:append>
               <q-icon name="search" />
             </template>
           </custom-input>
-          <custom-btn
-            color="primary"
-            label="Add user"
-            rounded
-            filled
-            icon="add"
-            @click="
-              $router.push({
-                name: Page.USER_CREATE,
-              })
-            "
-          />
+          <div class="q-ml-auto">
+            <custom-btn
+              class="col-xs-12 col-sm-5 col-md-4"
+              color="primary"
+              label="Add user"
+              rounded
+              filled
+              icon="add"
+              @click="
+                $router.push({
+                  name: Page.USER_CREATE,
+                })
+              "
+            />
+          </div>
         </div>
       </template>
       <template v-slot:body="props">
@@ -94,7 +100,7 @@ import {
   computed,
 } from 'vue';
 import { useUsers } from 'src/composables/useUsers';
-import { Page } from 'src/types/index';
+import { Page, User } from 'src/types/index';
 import CustomInput from 'src/components/atoms/CustomInput.vue';
 import CustomTable from 'src/components/organisms/CustomTable.vue';
 import CustomBtn from 'src/components/atoms/CustomButton.vue';
@@ -109,7 +115,8 @@ export default defineComponent({
     const { getAllUsers, users, deleteUser } = useUsers();
     const pageParam = computed(() => Number(route.query?.page));
     const page = ref(pageParam.value);
-    const totalPages = ref(5);
+    const totalPages = ref<number>(5);
+    const tableFilter = ref<string>('');
     const initialPagination = reactive({
       sortBy: 'desc',
       descending: false,
@@ -134,11 +141,9 @@ export default defineComponent({
     };
 
     const setRouteParams = () => {
-      if (pageParam.value && pageParam.value != page.value) {
-        void router.push({
-          query: { page: page.value },
-        });
-      }
+      void router.push({
+        query: { page: page.value },
+      });
     };
 
     const handleDeleteUser = async (removingId: number) => {
@@ -155,7 +160,9 @@ export default defineComponent({
     watch(
       () => pageParam.value,
       () => {
-        page.value = pageParam.value;
+        if (!isNaN(pageParam.value)) {
+          page.value = pageParam.value;
+        }
       }
     );
 
@@ -171,6 +178,8 @@ export default defineComponent({
         required: true,
         label: 'Full Name',
         align: 'left',
+        field: (row: User) => row.first_name + ' ' + row.last_name,
+        format: (val: User) => `${val}`,
       },
       {
         name: 'action',
@@ -183,6 +192,7 @@ export default defineComponent({
     return {
       handleDeleteUser,
       totalPages,
+      tableFilter,
       initialPagination,
       users,
       page,

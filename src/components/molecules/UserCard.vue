@@ -10,7 +10,12 @@
           height: 150px;
         "
       >
-        <q-img width="150px" height="150px" :src="uploadedImage" />
+        <q-img
+          width="150px"
+          height="150px"
+          :src="uploadedImage"
+          loading="lazy"
+        />
       </div>
       <custom-btn
         @click="runPrompt"
@@ -19,6 +24,7 @@
         label="Change photo"
         outline
         icon="camera_alt"
+        :disable="isLoading"
       />
     </q-card-section>
   </custom-card>
@@ -37,6 +43,10 @@ export default defineComponent({
     CustomBtn,
   },
   props: {
+    isLoading: {
+      type: Boolean,
+      default: false,
+    },
     editMode: {
       type: Boolean,
       default: false,
@@ -75,7 +85,6 @@ export default defineComponent({
     onMounted(() => {
       //sending default img
       if (!props.editMode) {
-        console.log('a');
         emit('on-image-change', uploadedImage.value);
       }
     });
