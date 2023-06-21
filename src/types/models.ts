@@ -21,5 +21,6 @@ export interface BackendTableParams {
 
 export enum Page {
   USER_LIST = 'userList',
+  USER_CREATE = 'userCreate',
   USER = 'user'
 }

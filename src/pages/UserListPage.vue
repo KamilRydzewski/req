@@ -12,7 +12,12 @@
     >
       <template #top>
         <div class="row justify-between full-width">
-          <custom-input dense filled icon-right="magnifier">
+          <custom-input
+            class="col-xs-12 col-sm-5 col-md-4"
+            dense
+            filled
+            icon-right="magnifier"
+          >
             <template v-slot:append>
               <q-icon name="search" />
             </template>
@@ -23,6 +28,11 @@
             rounded
             filled
             icon="add"
+            @click="
+              $router.push({
+                name: Page.USER_CREATE,
+              })
+            "
           />
         </div>
       </template>
@@ -43,6 +53,14 @@
               flat
               filled
               icon="edit"
+              @click="
+                $router.push({
+                  name: Page.USER,
+                  params: {
+                    id: props.row.id,
+                  },
+                })
+              "
             />
             <custom-btn
               class="q-pa-xs"
@@ -50,6 +68,7 @@
               flat
               filled
               icon="delete"
+              @click="handleDeleteUser(props.row.id)"
             />
           </q-td>
         </q-tr>
@@ -65,7 +84,6 @@
     </div>
   </q-page>
 </template>
-
 <script lang="ts">
 import {
   defineComponent,
@@ -76,6 +94,7 @@ import {
   computed,
 } from 'vue';
 import { useUsers } from 'src/composables/useUsers';
+import { Page } from 'src/types/index';
 import CustomInput from 'src/components/atoms/CustomInput.vue';
 import CustomTable from 'src/components/organisms/CustomTable.vue';
 import CustomBtn from 'src/components/atoms/CustomButton.vue';
@@ -87,9 +106,9 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const { getAllUsers, users } = useUsers();
-    const routeParams = computed(() => route.query);
-    const page = ref(Number(routeParams.value?.page) ?? 1);
+    const { getAllUsers, users, deleteUser } = useUsers();
+    const pageParam = computed(() => Number(route.query?.page));
+    const page = ref(pageParam.value);
     const totalPages = ref(5);
     const initialPagination = reactive({
       sortBy: 'desc',
@@ -99,8 +118,8 @@ export default defineComponent({
       // rowsNumber: 0,
     });
 
-    onMounted(() => {
-      fetchAllData();
+    onMounted(async () => {
+      await fetchAllData();
     });
 
     const fetchAllData = async () => {
@@ -115,22 +134,28 @@ export default defineComponent({
     };
 
     const setRouteParams = () => {
-      void router.push({
-        query: { page: page.value },
-      });
+      if (pageParam.value && pageParam.value != page.value) {
+        void router.push({
+          query: { page: page.value },
+        });
+      }
+    };
+
+    const handleDeleteUser = async (removingId: number) => {
+      await deleteUser(removingId);
     };
 
     watch(
-      () => routeParams.value,
-      () => {
-        page.value = Number(routeParams.value?.page);
+      () => page.value,
+      async () => {
+        await fetchAllData();
       }
     );
 
     watch(
-      () => page.value,
+      () => pageParam.value,
       () => {
-        fetchAllData();
+        page.value = pageParam.value;
       }
     );
 
@@ -156,11 +181,13 @@ export default defineComponent({
     ];
 
     return {
+      handleDeleteUser,
       totalPages,
       initialPagination,
       users,
       page,
       columns,
+      Page,
     };
   },
 });

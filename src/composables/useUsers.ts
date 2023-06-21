@@ -6,7 +6,7 @@ const users = ref<User[]>([]);
 export interface UseUsers {
   users: ComputedRef<User[]>;
   createNewUser: (data: User) => Promise<void>;
-  deleteUser: (id: number) => Promise<{message: string}>;
+  deleteUser: (removingId: number) => Promise<{message: string}>;
   getUser: (id: number) => Promise<User>;
   getAllUsers: (params?: BackendTableParams) => Promise<BackendTableResponse<User[]>>;
   updateUser: (id: number, data: User) => Promise<string>;
@@ -31,9 +31,13 @@ export const useUsers = (): UseUsers => {
     }
   };
 
-  const deleteUser = async (id: number) => {
+  const deleteUser = async (removingId: number) => {
     try {
-      return UserApi.deleteUser(id)
+      const resp = UserApi.deleteUser(removingId)
+      users.value = users.value.filter(
+        (user) => user.id != removingId
+      );
+      return resp;
     } catch (error) {
       console.log(error);
       return Promise.reject();
@@ -42,7 +46,8 @@ export const useUsers = (): UseUsers => {
 
   const getUser = async (id: number) => {
     try {
-      return await UserApi.getUser(id);
+      const resp =  await UserApi.getUser(id);
+      return resp.data
     } catch (error) {
       console.log(error);
       return Promise.reject();

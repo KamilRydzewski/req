@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated> </q-header>
 
-    <q-page-container class="bg-grey-3">
+    <q-page-container class="bg-grey-3" style="min-height: 100vh">
       <div class="q-pa-xl">
         <h1 class="q-ma-none text-h3 q-mb-lg">{{ pathNames[routeName] }}</h1>
         <router-view />
@@ -28,6 +28,8 @@ export default defineComponent({
     const pathNames = {
       ['unknown']: '-',
       [Page.USER_LIST]: 'User list',
+      [Page.USER_CREATE]: 'Add User',
+      [Page.USER]: 'User',
     };
     return {
       routeName,

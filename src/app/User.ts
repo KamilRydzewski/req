@@ -7,11 +7,11 @@ export default class UserApi {
   }
 
   public static async getUser(id: string | number) {
-    return await AxiosClient.get<User>(`users/${id}`);
+    return await AxiosClient.get<{data:User}>(`users/${id}`);
   }
 
   public static async createUser(data: User) {
-    await AxiosClient.post<User, unknown>('register', data);
+    await AxiosClient.post<User, unknown>('users', data);
   }
 
   public static async updateUser(id: number | string, data: User) {
