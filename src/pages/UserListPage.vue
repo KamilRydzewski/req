@@ -10,6 +10,7 @@
       hide-pagination
       :pagination="initialPagination"
       :filter="tableFilter"
+      :loading="isLoading"
     >
       <template #top>
         <div class="row justify-between full-width q-col-gutter-y-lg">
@@ -115,6 +116,7 @@ export default defineComponent({
     const { getAllUsers, users, deleteUser } = useUsers();
     const pageParam = computed(() => Number(route.query?.page));
     const page = ref(pageParam.value);
+    const isLoading = ref<boolean>(false);
     const totalPages = ref<number>(5);
     const tableFilter = ref<string>('');
     const initialPagination = reactive({
@@ -130,14 +132,20 @@ export default defineComponent({
     });
 
     const fetchAllData = async () => {
-      const paginationData = await getAllUsers({
-        page: page.value,
-        per_page: initialPagination.rowsPerPage,
-      });
-      page.value = paginationData.page;
-      totalPages.value = paginationData.total_pages;
-
-      setRouteParams();
+      try {
+        isLoading.value = true;
+        const paginationData = await getAllUsers({
+          page: page.value,
+          per_page: initialPagination.rowsPerPage,
+        });
+        page.value = paginationData.page;
+        totalPages.value = paginationData.total_pages;
+        setRouteParams();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     const setRouteParams = () => {
@@ -198,6 +206,7 @@ export default defineComponent({
       page,
       columns,
       Page,
+      isLoading,
     };
   },
 });
